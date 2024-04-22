@@ -1,0 +1,54 @@
+import pygame
+import sys
+
+# Inicializar pygame
+pygame.init()
+
+# Configuración de la ventana
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Drag")
+
+# Colores
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+
+# Lista para almacenar los puntos
+points = [(100, 100), (200, 200), (300, 300)]
+
+# Función para dibujar los puntos en pantalla
+def draw_points():
+    for point in points:
+        pygame.draw.circle(screen, RED, point, 5)
+
+# Bucle principal
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Click izquierdo
+                # Verificar si se hizo clic en algún punto para comenzar a arrastrarlo
+                for i, point in enumerate(points):
+                    if pygame.Rect(point[0] - 5, point[1] - 5, 10, 10).collidepoint(event.pos):
+                        selected_point = i
+                        break
+                else:
+                    # Si no se hizo clic en ningún punto, añadir uno nuevo
+                    points.append(event.pos)
+            elif event.button == 3:  # Click derecho
+                # Eliminar el punto más cercano al clic derecho
+                nearest_point = min(points, key=lambda p: ((p[0] - event.pos[0])**2 + (p[1] - event.pos[1])**2)**0.5)
+                points.remove(nearest_point)
+        elif event.type == pygame.MOUSEMOTION:
+            if event.buttons[0]:  # Arrastre con el botón izquierdo del mouse
+                # Actualizar la posición del punto seleccionado
+                if selected_point is not None:
+                    points[selected_point] = event.pos
+
+    # Dibujar en pantalla
+    screen.fill(WHITE)
+    draw_points()
+    pygame.display.flip()
